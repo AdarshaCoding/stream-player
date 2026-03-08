@@ -14,10 +14,14 @@ function VideoPlayer({ url, onSuccess, onError, onDebug }) {
 
     const video = videoRef.current;
 
-    // Reset flags
+    // Reset logging
     hasLoggedRef.current = false;
 
-    // Destroy previous players
+    // Ensure autoplay works
+    video.muted = true;
+    video.playsInline = true;
+
+    // Destroy previous instances
     if (hlsRef.current) {
       hlsRef.current.destroy();
       hlsRef.current = null;
@@ -28,7 +32,9 @@ function VideoPlayer({ url, onSuccess, onError, onDebug }) {
       dashRef.current = null;
     }
 
-    // -------- HLS STREAM --------
+    video.src = "";
+
+    // ---------------- HLS STREAM ----------------
     if (url.endsWith(".m3u8")) {
       onDebug({ streamType: "HLS" });
 
@@ -40,7 +46,9 @@ function VideoPlayer({ url, onSuccess, onError, onDebug }) {
         hls.attachMedia(video);
 
         hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
-          video.play();
+          video.play().catch((err) => {
+            console.warn("Autoplay prevented:", err);
+          });
 
           onDebug({
             manifestLoaded: "YES",
@@ -49,11 +57,10 @@ function VideoPlayer({ url, onSuccess, onError, onDebug }) {
           });
         });
 
-        // Verify playback actually started
         video.addEventListener("playing", () => {
           if (!hasLoggedRef.current) {
-            onSuccess();
             hasLoggedRef.current = true;
+            onSuccess();
           }
         });
 
@@ -68,9 +75,8 @@ function VideoPlayer({ url, onSuccess, onError, onDebug }) {
           });
         });
 
-        // Handle errors correctly
         hls.on(Hls.Events.ERROR, (_, data) => {
-          console.log("HLS Error Event:", data);
+          console.warn("HLS error:", data);
 
           if (data.fatal && !hasLoggedRef.current) {
             hasLoggedRef.current = true;
@@ -87,7 +93,7 @@ function VideoPlayer({ url, onSuccess, onError, onDebug }) {
       }
     }
 
-    // -------- DASH STREAM --------
+    // ---------------- DASH STREAM ----------------
     if (url.endsWith(".mpd")) {
       onDebug({ streamType: "DASH" });
 
@@ -97,6 +103,8 @@ function VideoPlayer({ url, onSuccess, onError, onDebug }) {
       player.initialize(video, url, true);
 
       player.on("streamInitialized", () => {
+        video.play().catch(() => {});
+
         onDebug({
           manifestLoaded: "YES",
         });
@@ -104,12 +112,14 @@ function VideoPlayer({ url, onSuccess, onError, onDebug }) {
 
       video.addEventListener("playing", () => {
         if (!hasLoggedRef.current) {
-          onSuccess();
           hasLoggedRef.current = true;
+          onSuccess();
         }
       });
 
       player.on("error", (e) => {
+        console.warn("DASH error:", e);
+
         if (!hasLoggedRef.current) {
           hasLoggedRef.current = true;
 
@@ -122,7 +132,6 @@ function VideoPlayer({ url, onSuccess, onError, onDebug }) {
       });
     }
 
-    // Cleanup when URL changes
     return () => {
       if (hlsRef.current) {
         hlsRef.current.destroy();
@@ -141,6 +150,8 @@ function VideoPlayer({ url, onSuccess, onError, onDebug }) {
       <video
         ref={videoRef}
         controls
+        muted
+        playsInline
         style={{
           width: "100%",
           maxWidth: "900px",

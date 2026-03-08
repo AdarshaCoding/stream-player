@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { Container, Typography, Card, CardContent } from "@mui/material";
 
@@ -9,7 +10,12 @@ import StreamStatus from "../components/StreamStatus";
 import { saveLog } from "../services/loggerService";
 
 function PlayerPage() {
-  const [url, setUrl] = useState("");
+  const [searchParams] = useSearchParams();
+
+  const mediaURL = searchParams.get("mediaURL");
+  const mediaLicense = searchParams.get("mediaLicense");
+
+  const [url, setUrl] = useState(mediaURL || "");
   const [status, setStatus] = useState("");
 
   const [debug, setDebug] = useState({
@@ -78,7 +84,6 @@ function PlayerPage() {
         </CardContent>
       </Card>
 
-      {/* New Component */}
       <StreamStatus
         status={status}
         url={url}
