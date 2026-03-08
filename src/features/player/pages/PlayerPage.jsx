@@ -64,7 +64,7 @@ function PlayerPage() {
           mb: 3,
         }}
       >
-        LG Stream Player
+        Stream Player
       </Typography>
 
       <Card sx={{ mb: 3 }}>
