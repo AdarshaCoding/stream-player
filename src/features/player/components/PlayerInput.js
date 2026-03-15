@@ -13,20 +13,13 @@ function PlayerInput({ onSubmit }) {
     <Stack direction="row" spacing={2} alignItems="center">
       <TextField
         label="Stream URL"
-        variant="outlined"
-        size="small"
-        sx={{ width: 500 }}
+        placeholder="Enter stream URL"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
       />
 
-      <Button
-        variant="contained"
-        color="error"
-        sx={{ padding: "6px 30px" }}
-        onClick={handlePlay}
-      >
-        PLAY
+      <Button color="primary" onClick={handlePlay}>
+        Play
       </Button>
     </Stack>
   );

@@ -56,14 +56,7 @@ function PlayerPage() {
 
   return (
     <Container maxWidth="lg">
-      <Typography
-        variant="h4"
-        sx={{
-          color: "#d32f2f",
-          fontWeight: 700,
-          mb: 3,
-        }}
-      >
+      <Typography variant="h4" color="primary" fontWeight={700} mb={3}>
         Stream Player
       </Typography>
 

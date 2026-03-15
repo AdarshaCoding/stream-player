@@ -13,8 +13,10 @@ function StatusPage() {
   }, []);
 
   return (
-    <Container>
-      <Typography variant="h4">Stream Status</Typography>
+    <Container sx={{ py: 4 }}>
+      <Typography variant="h4" color="primary" mb={3}>
+        Stream Status
+      </Typography>
 
       <PlayerStatusTable logs={logs} />
     </Container>
